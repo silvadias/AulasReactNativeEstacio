@@ -1,28 +1,33 @@
-import React from 'react';
-import { View, Image, StyleSheet } from 'react-native';
+import React from "react";
+import { SafeAreaView, StyleSheet, TextInput } from "react-native";
+
+const MeuTextInput = () => {
+  const [texto, setTexto] = React.useState(null);
+  const [numero, setNumero] = React.useState(0);
+
+  return (
+	<SafeAreaView>
+	  <TextInput
+		style={styles.meutextinput}
+		value={texto}
+	  />
+	  <TextInput
+		style={styles.meutextinput}
+		onChangeText={setNumero}
+		value={numero}
+		keyboardType="numeric"
+	  />
+	</SafeAreaView>
+  );
+};
 
 const styles = StyleSheet.create({
-  container: {
-	paddingTop: 50,
+  meutextinput: {
+	marginTop:100,
+	height: 40,
+	margin: 12,
+	borderWidth: 1
   },
-  imagem: {
-	width: 50,
-	height: 50,
-	alignSelf: 'center'
-  }
 });
 
-const ComponenteSimplesImage = () => {
-  return (
-	<View style={styles.container}>
-	  <Image
-		style={styles.imagem}
-		source={{
-		  uri: 'https://reactnative.dev/img/tiny_logo.png',
-		}}
-	  />
-	</View>
-  );
-}
-
-export default ComponenteSimplesImage;
+export default MeuTextInput;
