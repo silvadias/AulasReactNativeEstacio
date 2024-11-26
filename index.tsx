@@ -1,42 +1,69 @@
-import React from 'react';
-import { StyleSheet, Text, SafeAreaView, ScrollView, StatusBar } from 'react-native';
+import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
+import { useState } from 'react';
+import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-const Lista = () => {
+export default function App() {
+  const [facing, setFacing] = useState<CameraType>('back');
+  const [permission, requestPermission] = useCameraPermissions();
+
+  if (!permission) {
+    // Camera permissions are still loading.
+    return <View />;
+  }
+
+  if (!permission.granted) {
+    // Camera permissions are not granted yet.
+    return (
+      <View style={styles.container}>
+        <Text style={styles.message}>We need your permission to show the camera</Text>
+        <Button onPress={requestPermission} title="grant permission" />
+      </View>
+    );
+  }
+
+  function toggleCameraFacing() {
+    setFacing(current => (current === 'back' ? 'front' : 'back'));
+  }
+
   return (
-	<SafeAreaView style={styles.safecontainer}>
-	  <ScrollView style={styles.containerScrollView}>
-		<Text style={styles.text}>
-		  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-					Pellentesque id dui sed nulla imperdiet scelerisque.
-					Integer malesuada facilisis nibh varius eleifend.
-					Cras a velit laoreet dui interdum consectetur.
-					Pellentesque volutpat placerat mauris in interdum.
-					Pellentesque non egestas sem. Suspendisse malesuada at augue
-					sit amet pretium.
-					Praesent odio nisl, semper vitae purus a, elementum ultrices arcu.
-					Praesent blandit lectus et aliquet posuere.
-					Nulla dictum, nisi id feugiat suscipit, mi sem maximus turpis,
-					vel aliquet massa ex sit amet sem.
-					Sed ullamcorper enim non elit vestibulum, feugiat euismod elit
-					consectetur. In et pulvinar eros.
-		</Text>
-	  </ScrollView>
-	</SafeAreaView>
+    <View style={styles.container}>
+      <CameraView style={styles.camera} facing={facing}>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
+            <Text style={styles.text}>Flip Camera</Text>
+          </TouchableOpacity>
+        </View>
+      </CameraView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safecontainer: {
-	flex: 1,
-	paddingTop: StatusBar.currentHeight,
+  container: {
+    flex: 1,
+    justifyContent: 'center',
   },
-  containerScrollView: {
-	backgroundColor: 'grey',
-	marginHorizontal: 20,
+  message: {
+    textAlign: 'center',
+    paddingBottom: 10,
+  },
+  camera: {
+    flex: 1,
+  },
+  buttonContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    backgroundColor: 'transparent',
+    margin: 64,
+  },
+  button: {
+    flex: 1,
+    alignSelf: 'flex-end',
+    alignItems: 'center',
   },
   text: {
-	fontSize: 26,
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'white',
   },
 });
-
-export default Lista;
