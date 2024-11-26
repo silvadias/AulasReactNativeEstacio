@@ -1,10 +1,12 @@
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
-import { useState } from 'react';
-import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { Button, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function App() {
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
+  const [photoUri, setPhotoUri] = useState<string | null>(null); // Para armazenar a URI da foto capturada
+  const cameraRef = useRef<any>(null); // Referência para a câmera
 
   if (!permission) {
     // Camera permissions are still loading.
@@ -25,15 +27,36 @@ export default function App() {
     setFacing(current => (current === 'back' ? 'front' : 'back'));
   }
 
+  async function takePhoto() {
+    if (cameraRef.current) {
+      const photo = await cameraRef.current.takePictureAsync(); // Captura a foto
+      setPhotoUri(photo.uri); // Armazena a URI da foto capturada no estado
+    }
+  }
+
   return (
     <View style={styles.container}>
-      <CameraView style={styles.camera} facing={facing}>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-            <Text style={styles.text}>Flip Camera</Text>
-          </TouchableOpacity>
+      {photoUri ? (
+        <View style={styles.container}>
+          <Image source={{ uri: photoUri }} style={styles.photoPreview} /> {/* Exibe a foto capturada */}
+          <Button title="Retake Photo" onPress={() => setPhotoUri(null)} />
         </View>
-      </CameraView>
+      ) : (
+        <CameraView
+          ref={cameraRef} // Conecta a referência à câmera
+          style={styles.camera}
+          facing={facing}
+        >
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
+              <Text style={styles.text}>Flip Camera</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={takePhoto}>
+              <Text style={styles.text}>Take Photo</Text>
+            </TouchableOpacity>
+          </View>
+        </CameraView>
+      )}
     </View>
   );
 }
@@ -54,16 +77,22 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     backgroundColor: 'transparent',
-    margin: 64,
+    justifyContent: 'space-around',
+    alignItems: 'flex-end',
+    marginBottom: 20,
   },
   button: {
     flex: 1,
-    alignSelf: 'flex-end',
     alignItems: 'center',
+    marginHorizontal: 10,
   },
   text: {
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: 'bold',
     color: 'white',
+  },
+  photoPreview: {
+    flex: 1,
+    width: '100%',
   },
 });
